@@ -21,9 +21,9 @@ def imread_and_imwirte(src_path, dst_path):
     #assert img.shape==(512,512)
     cv2.imwrite(dst_path, image)
 
-def main(root_dir, save_dir):
-    dfc = pd.read_csv(f'{root_dir}/train_label_coordinates.csv')
-    df = pd.read_csv(f'{root_dir}/train_series_descriptions.csv')
+def main(data_dir, save_dir):
+    dfc = pd.read_csv(f'{data_dir}/train_label_coordinates.csv')
+    df = pd.read_csv(f'{data_dir}/train_series_descriptions.csv')
     desc = list(df['series_description'].unique())
     st_ids = df['study_id'].unique()
 
@@ -35,7 +35,7 @@ def main(root_dir, save_dir):
             os.makedirs(f'{save_dir}/{si}/{ds_}', exist_ok=True)
             allimgs = []
             for i, row in pdf_.iterrows():
-                pimgs = glob.glob(f'{root_dir}/train_images/{row["study_id"]}/{row["series_id"]}/*.dcm')
+                pimgs = glob.glob(f'{data_dir}/train_images/{row["study_id"]}/{row["series_id"]}/*.dcm')
                 pimgs = sorted(pimgs, key=natural_keys)
                 allimgs.extend(pimgs)
                 
