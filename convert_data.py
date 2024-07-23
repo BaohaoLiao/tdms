@@ -32,7 +32,7 @@ def combine_lists(a, b, c):
     return [list(combination) for combination in combinations]
 
 
-def main(data_dir, save_dir, nfold=10, seed=42):
+def main(data_dir, save_dir, nfold=10, seed=42, convert_data=True):
     df = pd.read_csv(f'{data_dir}/train_series_descriptions.csv')
 
     # Unmerge
@@ -74,37 +74,38 @@ def main(data_dir, save_dir, nfold=10, seed=42):
     })
 
     # Convert dcm to png
-    study_ids = new_df['study_id'].unique()
-    desc = list(new_df['series_description'].unique())
+    if convert_data:
+        study_ids = new_df['study_id'].unique()
+        desc = list(new_df['series_description'].unique())
 
-    for _, si in enumerate(tqdm(study_ids, total=len(study_ids))):
-        pdf = new_df[new_df['study_id']==si]
-        for alias in pdf["alias"].unique():
-            pdf_alias = pdf[pdf["alias"] == alias]
-            for ds in desc:
-                ds_ = ds.replace('/', '_').replace(" ", "_")
-                pdf_alias_ = pdf_alias[pdf_alias['series_description']==ds]
-                assert len(pdf_alias_) == 1
-                
-                if alias == 0:
-                    img_save_dir = f'{save_dir}/images/{si}/{ds_}'
-                else:
-                    img_save_dir = f'{save_dir}/images/{si}_{alias}/{ds_}'
-                os.makedirs(img_save_dir, exist_ok=True)
-                
-                allimgs = []
-                for i, row in pdf_alias_.iterrows():
-                    pimgs = glob.glob(f'{data_dir}/train_images/{row["study_id"]}/{row["series_id"]}/*.dcm')
-                    pimgs = sorted(pimgs, key=natural_keys)
-                    allimgs.extend(pimgs)
-
-                if len(allimgs)==0:
-                    print(si, ds, alias, 'has no images')
-                    continue
+        for _, si in enumerate(tqdm(study_ids, total=len(study_ids))):
+            pdf = new_df[new_df['study_id']==si]
+            for alias in pdf["alias"].unique():
+                pdf_alias = pdf[pdf["alias"] == alias]
+                for ds in desc:
+                    ds_ = ds.replace('/', '_').replace(" ", "_")
+                    pdf_alias_ = pdf_alias[pdf_alias['series_description']==ds]
+                    assert len(pdf_alias_) == 1
                     
-                for j, impath in enumerate(allimgs):
-                    dst = f'{img_save_dir}/{j:03d}.png'
-                    imread_and_imwirte(impath, dst)
+                    if alias == 0:
+                        img_save_dir = f'{save_dir}/images/{si}/{ds_}'
+                    else:
+                        img_save_dir = f'{save_dir}/images/{si}_{alias}/{ds_}'
+                    os.makedirs(img_save_dir, exist_ok=True)
+                    
+                    allimgs = []
+                    for i, row in pdf_alias_.iterrows():
+                        pimgs = glob.glob(f'{data_dir}/train_images/{row["study_id"]}/{row["series_id"]}/*.dcm')
+                        pimgs = sorted(pimgs, key=natural_keys)
+                        allimgs.extend(pimgs)
+
+                    if len(allimgs)==0:
+                        print(si, ds, alias, 'has no images')
+                        continue
+                        
+                    for j, impath in enumerate(allimgs):
+                        dst = f'{img_save_dir}/{j:03d}.png'
+                        imread_and_imwirte(impath, dst)
 
     # KFold
     kf = KFold(n_splits=nfold, shuffle=True, random_state=seed)
@@ -114,7 +115,7 @@ def main(data_dir, save_dir, nfold=10, seed=42):
         for idx in test_idx:
             folds[unique_ids[idx]] = fold
     new_df['fold'] = new_df['study_id'].map(folds)
-    new_df.to_csv("{save_dir}/new_train_series_description.csv", index=False)
+    new_df.to_csv(f"{save_dir}/new_train_series_description.csv", index=False)
 
 
 if __name__ == "__main__":
