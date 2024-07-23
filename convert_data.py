@@ -34,6 +34,7 @@ def combine_lists(a, b, c):
 
 def main(data_dir, save_dir, nfold=10, seed=42, convert_data=True):
     df = pd.read_csv(f'{data_dir}/train_series_descriptions.csv')
+    df_label = pd.read_csv(f'{data_dir}/train.csv')
 
     # Unmerge
     study_ids = df['study_id'].unique()
@@ -73,6 +74,41 @@ def main(data_dir, save_dir, nfold=10, seed=42, convert_data=True):
         "alias": new_alias,
     })
 
+
+    # KFold based on study_id
+    kf = KFold(n_splits=nfold, shuffle=True, random_state=seed)
+    unique_ids = new_df['study_id'].unique()
+    folds = {}
+    for fold, (train_idx, test_idx) in enumerate(kf.split(unique_ids)):
+        for idx in test_idx:
+            folds[unique_ids[idx]] = fold
+    new_df['fold'] = new_df['study_id'].map(folds)
+    new_df.to_csv(f"{save_dir}/new_train_series_description.csv", index=False)
+
+    new_study_ids = []
+    new_alias = []
+    new_folds = []
+    study_ids = new_df['study_id'].unique()
+    for _, si in enumerate(tqdm(study_ids, total=len(study_ids))):
+        pdf = new_df[new_df["study_id"]==si]
+        assert len(pdf["fold"].unique()) == 1
+        
+        num_alias = len(pdf["alias"].unique())
+        for alias in range(num_alias):
+            new_alias.append(alias)
+            new_study_ids.append(si)
+            new_folds.append(pdf["fold"].unique()[0])
+
+    new_df_label = pd.DataFrame({
+        "study_id": new_study_ids,
+        "alias": new_alias,
+        "fold": new_folds
+    })
+
+    df_label_merged = df_label.merge(new_df_label, on='study_id', how='right')
+    df_label_merged.to_csv(f"{save_dir}/new_train.csv", index=False)
+
+
     # Convert dcm to png
     if convert_data:
         study_ids = new_df['study_id'].unique()
@@ -85,9 +121,7 @@ def main(data_dir, save_dir, nfold=10, seed=42, convert_data=True):
                 for ds in desc:
                     ds_ = ds.replace('/', '_').replace(" ", "_")
                     pdf_alias_ = pdf_alias[pdf_alias['series_description']==ds]
-                    if len(pdf_alias_) != 1:
-                        print(si)
-                        print(pdf_alias_)
+                    assert len(pdf_alias_) < 2
                     
                     if alias == 0:
                         img_save_dir = f'{save_dir}/images/{si}/{ds_}'
@@ -108,16 +142,6 @@ def main(data_dir, save_dir, nfold=10, seed=42, convert_data=True):
                     for j, impath in enumerate(allimgs):
                         dst = f'{img_save_dir}/{j:03d}.png'
                         imread_and_imwirte(impath, dst)
-
-    # KFold
-    kf = KFold(n_splits=nfold, shuffle=True, random_state=seed)
-    unique_ids = new_df['study_id'].unique()
-    folds = {}
-    for fold, (train_idx, test_idx) in enumerate(kf.split(unique_ids)):
-        for idx in test_idx:
-            folds[unique_ids[idx]] = fold
-    new_df['fold'] = new_df['study_id'].map(folds)
-    new_df.to_csv(f"{save_dir}/new_train_series_description.csv", index=False)
 
 
 if __name__ == "__main__":
