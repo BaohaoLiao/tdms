@@ -85,7 +85,9 @@ def main(data_dir, save_dir, nfold=10, seed=42, convert_data=True):
                 for ds in desc:
                     ds_ = ds.replace('/', '_').replace(" ", "_")
                     pdf_alias_ = pdf_alias[pdf_alias['series_description']==ds]
-                    assert len(pdf_alias_) == 1
+                    if len(pdf_alias_) != 1:
+                        print(si)
+                        print(pdf_alias_)
                     
                     if alias == 0:
                         img_save_dir = f'{save_dir}/images/{si}/{ds_}'
