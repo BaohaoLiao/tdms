@@ -144,6 +144,10 @@ def main():
 
     # Dataset
     all_df = pd.read_csv(args.df_path)
+    all_df = all_df.fillna(-100)
+    label2id = {'Normal/Mild': 0, 'Moderate':1, 'Severe':2}
+    all_df = all_df.replace(label2id)    
+
     train_df = all_df[all_df["fold"] != args.eval_fold]
     eval_df = all_df[all_df["fold"] == args.eval_fold]
     train_df.reset_index(drop=True, inplace=True)
