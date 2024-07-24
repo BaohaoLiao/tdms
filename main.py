@@ -405,10 +405,15 @@ def main():
         outputs = torch.cat(outputs)
         assert len(outputs) == len(submission_df)
         normed_outputs = torch.nn.functional.softmax(outputs, dim=-1)
-        submission_df.iloc[:, 1:] = normed_outputs.numpy()
+
+        submission_df_metric = submission_df.copy(deep=True)
+        solution_df_metric = solution_df.copy(deep=True)
+        submission_df_metric.iloc[:, 1:] = normed_outputs.numpy()
+        submission_df_metric_avg = submission_df_metric.groupby('row_id').mean().sort_values('row_id').reset_index(drop=True)
+        solution_df_metric_avg = solution_df_metric.groupby('row_id').mean().sort_values('row_id').reset_index(drop=True)
         eval_metric_loss = score(
-                solution_df[solution_df["sample_weight"]!=0].copy(deep=True), 
-                submission_df[solution_df["sample_weight"]!=0].copy(deep=True), 
+                solution_df_metric_avg[solution_df_metric_avg["sample_weight"]!=0], 
+                submission_df_metric_avg[solution_df_metric_avg["sample_weight"]!=0], 
                 "row_id", 
                 1.
             )
