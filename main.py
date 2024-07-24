@@ -349,7 +349,7 @@ def main():
 
             if args.log_step is not None:
                 if completed_steps % args.log_step == 0:
-                    logger.info(f"epoch {epoch}, step {completed_steps} || loss: {loss.item()}, lr: {optimizer.lr}")
+                    logger.info(f"epoch {epoch}, step {completed_steps} || loss: {loss.item():.4f}, lr: {lr_scheduler.get_lr()[0]:.6f}")
 
             if isinstance(checkpointing_steps, int):
                 if completed_steps % checkpointing_steps == 0:
@@ -410,7 +410,7 @@ def main():
             best_eval_epoch = epoch
 
         logger.info(
-            f"epoch {epoch} || eval_score: {eval_score}, eval_loss: {eval_loss}, eval_acc: {eval_acc}, best_eval_loss: {best_eval_loss}, best_eval_epoch: {best_eval_epoch}"
+            f"epoch {epoch} || eval_score: {eval_score:.4f}, eval_loss: {eval_loss:.4f}, eval_acc: {eval_acc:.3f}, best_eval_loss: {best_eval_loss:.4f}, best_eval_epoch: {best_eval_epoch}"
         )
 
         if args.with_tracking:
