@@ -365,6 +365,7 @@ def main():
             if completed_steps >= args.max_train_steps:
                 break
 
+        # evaluation
         model.eval()
         losses = []
         preds = []
