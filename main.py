@@ -314,6 +314,8 @@ def main():
 
     weights = torch.tensor([1.0, 2.0, 4.0])
     criterion = nn.CrossEntropyLoss(weight=weights.cuda())
+    best_eval_loss = 100
+    best_eval_epoch = 0
     for epoch in range(starting_epoch, args.num_train_epochs):
         model.train()
         if args.with_tracking:
@@ -412,8 +414,6 @@ def main():
                 1.
             )
 
-        best_eval_loss = 100
-        best_eval_epoch = 0
         if best_eval_loss > eval_loss:
             best_eval_loss = eval_loss
             best_eval_epoch = epoch
