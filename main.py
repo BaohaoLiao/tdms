@@ -104,6 +104,7 @@ def parse_args():
         help="Whether to enable experiment trackers for logging.",
     )
     parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--log_step", type=int, default=None)
     args = parser.parse_args()
     return args
 
@@ -327,6 +328,10 @@ def main():
             if accelerator.sync_gradients:
                 progress_bar.update(1)
                 completed_steps += 1
+
+            if args.log_step is not None:
+                if step // args.log_step == 0:
+                    logger.info(f"epoch {epoch}, step {completed_steps}: loss: {loss.item()}")
 
             if isinstance(checkpointing_steps, int):
                 if completed_steps % checkpointing_steps == 0:
