@@ -8,6 +8,7 @@ import albumentations as A
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch.utils.data import DataLoader
 
 from accelerate import Accelerator
@@ -402,7 +403,7 @@ def main():
 
         outputs = torch.cat(outputs)
         assert len(outputs) == len(submission_df)
-        submission_df.iloc[:, 1:] = outputs.numpy()
+        submission_df.iloc[:, 1:] = F.softmax(outputs, dim=-1).numpy()
         eval_score = score(solution_df[solution_df["sample_weight"]!=0], submission_df[solution_df["sample_weight"]!=0], "row_id", 1.)
 
         best_eval_loss = 100
