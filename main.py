@@ -309,13 +309,18 @@ def main():
             active_dataloader = train_dataloader
         for step, batch in enumerate(active_dataloader):
             with accelerator.accumulate(model):
-                img, label = batch[0], batch[1] # TODO: check
-                y = model(img)
+                img, target = batch[0], batch[1] # TODO: check
+                output = model(img)
+                """
                 loss = 0
                 for col in range(args.n_labels):
                     pred = y[:,col*3:col*3+3]
                     gt = label[:,col]
                     loss = loss + criterion(pred, gt) / args.n_labels
+                """
+                output = output.view(-1, args.n_labels, 3).reshape(-1, 3)
+                target = target.view(-1)
+                loss = criterion(output, target)
 
                 if args.with_tracking:
                     total_loss += loss.detach().float()
@@ -345,25 +350,43 @@ def main():
 
         model.eval()
         losses = []
+        preds = []
+        refs = []
         for step, batch in enumerate(eval_dataloader):
-            img, label = batch[0], batch[1]
+            img, target = batch[0], batch[1]
             with torch.no_grad():
-                y = model(img)
+                output = model(img)
+            """
             loss = 0
             for col in range(args.n_labels):
                 pred = y[:,col*3:col*3+3]
                 gt = label[:,col]
                 loss = loss + criterion(pred, gt) / args.n_labels
+            """
+            output = output.view(-1, args.n_labels, 3).reshape(-1, 3)
+            target = target.view(-1)
+            loss = criterion(output, target)
             losses.append(accelerator.gather_for_metrics(loss.repeat(args.per_device_eval_batch_size)))
+
+            preds.append(output.argmax(dim=-1))
+            refs.append(target)
 
         losses = torch.cat(losses)
         eval_loss = torch.mean(losses)
-        logger.info(f"epoch {epoch}: eval_loss: {eval_loss}")
+
+        preds = torch.cat(preds)
+        refs = torch.cat(refs)
+        correct = torch.eq(preds, refs).sum().item() 
+        total = refs.size(0)
+        eval_acc = correct / total
+
+        logger.info(f"epoch {epoch}: eval_loss: {eval_loss}, eval_acc: {eval_acc}")
 
         if args.with_tracking:
             accelerator.log(
                 {
                     "eval_loss": eval_loss,
+                    "eval_acc": eval_acc,
                     "train_loss": total_loss.item() / len(train_dataloader),
                     "epoch": epoch,
                     "step": completed_steps,
