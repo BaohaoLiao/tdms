@@ -376,11 +376,22 @@ def main():
 
         preds = torch.cat(preds)
         refs = torch.cat(refs)
+        mask = refs != -100
+        preds = preds[mask]
+        refs = refs[mask]
         correct = torch.eq(preds, refs).sum().item() 
         total = refs.size(0)
         eval_acc = correct / total
 
-        logger.info(f"epoch {epoch}: eval_loss: {eval_loss}, eval_acc: {eval_acc}")
+        best_eval_loss = 100
+        best_eval_epoch = 0
+        if best_eval_loss > eval_loss:
+            best_eval_loss = eval_loss
+            best_eval_epoch = epoch
+
+        logger.info(
+            f"epoch {epoch}: eval_loss: {eval_loss}, eval_acc: {eval_acc}, best_eval_loss: {best_eval_loss}, best_eval_epoch: {best_eval_epoch}"
+        )
 
         if args.with_tracking:
             accelerator.log(
