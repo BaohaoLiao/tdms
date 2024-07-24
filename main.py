@@ -310,7 +310,6 @@ def main():
             with accelerator.accumulate(model):
                 img, label = batch[0], batch[1] # TODO: check
                 y = model(img)
-                assert len(pred.size()) == 2
                 loss = 0
                 for col in range(args.n_labels):
                     pred = y[:,col*3:col*3+3]
@@ -376,12 +375,6 @@ def main():
     if args.with_tracking:
         accelerator.end_training()
 
-    if args.output_dir is not None:
-        accelerator.wait_for_everyone()
-        unwrapped_model = accelerator.unwrap_model(model)
-        unwrapped_model.save_pretrained(
-            args.output_dir, is_main_process=accelerator.is_main_process, save_function=accelerator.save
-        )
 
 if __name__ == "__main__":
     main()
