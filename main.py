@@ -155,8 +155,6 @@ def main():
     # Dataset
     all_df = pd.read_csv(args.df_path)
     all_df = all_df.fillna(-100)
-    label2id = {'Normal/Mild': 0, 'Moderate':1, 'Severe':2}
-    all_df = all_df.replace(label2id)    
 
     train_df = all_df[all_df["fold"] != args.eval_fold]
     eval_df = all_df[all_df["fold"] == args.eval_fold]
@@ -170,6 +168,10 @@ def main():
     ## Reformat eval_df for calculating metric
     solution_df = reformat_eval_df(eval_df)
     submission_df = solution_df.copy(deep=True).drop(columns=["sample_weight"]) # placeholder
+
+    label2id = {'Normal/Mild': 0, 'Moderate':1, 'Severe':2}
+    train_df = train_df.replace(label2id)
+    eval_df = eval_df.replace(label2id)
 
     dataset = DATASETS[args.dataset_process]
     transform_train = A.Compose([
