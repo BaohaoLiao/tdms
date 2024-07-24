@@ -410,11 +410,14 @@ def main():
         submission_df_metric = submission_df.copy(deep=True)
         solution_df_metric = solution_df.copy(deep=True)
         submission_df_metric.iloc[:, 1:] = normed_outputs.numpy()
-        submission_df_metric_avg = submission_df_metric.groupby('row_id').mean().sort_values('row_id').reset_index(drop=True)
-        solution_df_metric_avg = solution_df_metric.groupby('row_id').mean().sort_values('row_id').reset_index(drop=True)
+        submission_df_metric_avg = submission_df_metric.groupby('row_id').mean().reset_index()
+        submission_df_metric_avg = submission_df_metric_avg.sort_values('row_id').reset_index(drop=True)
+        solution_df_metric_avg = solution_df_metric.groupby('row_id').mean().reset_index()
+        solution_df_metric_avg = solution_df_metric_avg.sort_values('row_id').reset_index(drop=True)
+
         eval_metric_loss = score(
-                solution_df_metric_avg[solution_df_metric_avg["sample_weight"]!=0], 
-                submission_df_metric_avg[solution_df_metric_avg["sample_weight"]!=0], 
+                solution_df_metric_avg[solution_df_metric_avg["sample_weight"]!=0].copy(deep=True),
+                submission_df_metric_avg[solution_df_metric_avg["sample_weight"]!=0].copy(deep=True),
                 "row_id", 
                 1.
             )
