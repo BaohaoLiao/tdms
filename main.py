@@ -34,7 +34,6 @@ def parse_args():
     parser.add_argument("--max_eval_samples", type=int, default=None)
     parser.add_argument("--dataset_process", type=str, default=None)
     parser.add_argument("--aug_prob", type=float, default=0.75)
-    parser.add_argument("--aug_prob", type=float, default=0.75)
     # model
     parser.add_argument("--model_name", type=str, default=None)
     parser.add_argument("--in_channels", type=int, default=30)
