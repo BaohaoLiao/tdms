@@ -19,8 +19,8 @@ def imread_and_imwirte(src_path, dst_path):
     dicom_data = pydicom.dcmread(src_path)
     image = dicom_data.pixel_array
     image = (image - image.min()) / (image.max() - image.min() +1e-6) * 255
-    img = cv2.resize(image, (512, 512),interpolation=cv2.INTER_CUBIC)
-    assert img.shape==(512,512)
+    image = cv2.resize(image, (512, 512),interpolation=cv2.INTER_CUBIC)
+    assert image.shape==(512,512)
     cv2.imwrite(dst_path, image)
 
 def combine_lists(a, b, c):
