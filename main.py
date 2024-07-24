@@ -314,8 +314,8 @@ def main():
 
     weights = torch.tensor([1.0, 2.0, 4.0])
     criterion = nn.CrossEntropyLoss(weight=weights.cuda())
-    best_eval_loss = 100
-    best_eval_epoch = 0
+    best_eval_metric_loss = 100
+    best_eval_metric_epoch = 0
     for epoch in range(starting_epoch, args.num_train_epochs):
         model.train()
         if args.with_tracking:
@@ -407,19 +407,20 @@ def main():
         assert len(outputs) == len(submission_df)
         normed_outputs = torch.nn.functional.softmax(outputs, dim=-1)
         submission_df.iloc[:, 1:] = normed_outputs.numpy()
-        eval_score = score(
+        eval_metric_loss = score(
                 solution_df[solution_df["sample_weight"]!=0].copy(deep=True), 
                 submission_df[solution_df["sample_weight"]!=0].copy(deep=True), 
                 "row_id", 
                 1.
             )
 
-        if best_eval_loss > eval_loss:
-            best_eval_loss = eval_loss
-            best_eval_epoch = epoch
+        if best_eval_metric_loss > eval_metric_loss:
+            best_eval_metric_loss = eval_metric_loss
+            best_eval_metric_epoch = epoch
 
         logger.info(
-            f" epoch {epoch} || eval_score: {eval_score:.4f}, eval_loss: {eval_loss:.4f}, eval_acc: {eval_acc:.3f}, best_eval_loss: {best_eval_loss:.4f}, best_eval_epoch: {best_eval_epoch}"
+            f" epoch {epoch} || metric_loss: {eval_metric_loss:.4f}, eval_loss: {eval_loss:.4f}, "
+            f"eval_acc: {eval_acc:.3f}, best_metric_loss: {best_eval_metric_loss:.4f}, best_metric_epoch: {best_eval_metric_epoch}"
         )
 
         if args.with_tracking:
