@@ -219,9 +219,7 @@ def main():
 
     # Model
     model = MODEL_FACTORY[args.model_name](args.model_name, in_c=args.in_channels, n_classes=args.n_labels * 3)
-
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    logger.info(f"Number of trainable parameters: {params}")
 
     # Optimizer and LR scheduler
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
@@ -278,6 +276,7 @@ def main():
     logger.info(f"  Total train batch size (w. parallel, distributed & accumulation) = {total_batch_size}")
     logger.info(f"  Gradient Accumulation steps = {args.gradient_accumulation_steps}")
     logger.info(f"  Total optimization steps = {args.max_train_steps}")
+    logger.info(f"  Numb trainable parameters = {params}")
     # Only show the progress bar once on each machine.
     progress_bar = tqdm(range(args.max_train_steps), disable=not accelerator.is_local_main_process)
     completed_steps = 0
