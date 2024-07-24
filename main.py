@@ -104,12 +104,6 @@ def parse_args():
         help="Whether to enable experiment trackers for logging.",
     )
     parser.add_argument("--workers", type=int, default=1)
-    parser.add_argument(
-        "--checkpointing_steps",
-        type=str,
-        default=None,
-        help="Whether the various states should be saved at the end of every n steps, or 'epoch' for each epoch.",
-    )
     args = parser.parse_args()
     return args
 
