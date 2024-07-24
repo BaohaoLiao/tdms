@@ -428,7 +428,7 @@ def main():
 
         logger.info(
             f" epoch {epoch} || metric_loss: {eval_metric_loss:.4f}, eval_loss: {eval_loss:.4f}, "
-            f"eval_acc: {eval_acc:.3f}, best_metric_loss: {best_eval_metric_loss:.4f}, best_metric_epoch: {best_eval_metric_epoch}"
+            f"eval_acc: {eval_acc:.4f}, best_metric_loss: {best_eval_metric_loss:.4f}, best_metric_epoch: {best_eval_metric_epoch}"
         )
 
         if args.with_tracking:
@@ -455,4 +455,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
