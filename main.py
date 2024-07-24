@@ -330,7 +330,7 @@ def main():
                 completed_steps += 1
 
             if args.log_step is not None:
-                if step // args.log_step == 0:
+                if completed_steps % args.log_step == 0:
                     logger.info(f"epoch {epoch}, step {completed_steps}: loss: {loss.item()}")
 
             if isinstance(checkpointing_steps, int):
