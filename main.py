@@ -169,7 +169,7 @@ def main():
 
     ## Reformat eval_df for calculating metric
     solution_df = reformat_eval_df(eval_df)
-    submission_df = solution_df.copy(deep=True).drop(["sample_weight"]) # placeholder
+    submission_df = solution_df.copy(deep=True).drop(columns=["sample_weight"]) # placeholder
 
     dataset = DATASETS[args.dataset_process]
     transform_train = A.Compose([
@@ -401,7 +401,7 @@ def main():
         outputs = torch.cat(outputs)
         assert len(outputs) == len(submission_df)
         submission_df.iloc[:, 1:] = outputs
-        eval_score = score(solution_df, submission_df, "row_id", 1.)
+        eval_score = score(solution_df[solution_df["sample_weight"]!=0], submission_df[solution_df["sample_weight"]!=0], "row_id", 1.)
 
         best_eval_loss = 100
         best_eval_epoch = 0
