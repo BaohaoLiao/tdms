@@ -403,8 +403,14 @@ def main():
 
         outputs = torch.cat(outputs)
         assert len(outputs) == len(submission_df)
-        submission_df.iloc[:, 1:] = F.softmax(outputs, dim=-1).numpy()
-        eval_score = score(solution_df[solution_df["sample_weight"]!=0], submission_df[solution_df["sample_weight"]!=0], "row_id", 1.)
+        normed_outputs = torch.nn.functional.softmax(outputs, dim=-1)
+        submission_df.iloc[:, 1:] = normed_outputs.numpy()
+        eval_score = score(
+                solution_df[solution_df["sample_weight"]!=0].copy(deep=True), 
+                submission_df[solution_df["sample_weight"]!=0].copy(deep=True), 
+                "row_id", 
+                1.
+            )
 
         best_eval_loss = 100
         best_eval_epoch = 0
