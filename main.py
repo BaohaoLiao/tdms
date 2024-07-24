@@ -18,6 +18,7 @@ from transformers.utils import send_example_telemetry
 
 from data_loader import DATASETS
 from models import MODEL_FACTORY
+from metric import score, reformat_eval_df
 
 
 logger = logging.getLogger(__name__)
@@ -105,6 +106,7 @@ def parse_args():
     )
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--log_step", type=int, default=None)
+    parser.add_argument("--fp16", action="store_true")
     args = parser.parse_args()
     return args
 
@@ -117,10 +119,17 @@ def main():
         accelerator_log_kwargs["log_with"] = args.report_to
         accelerator_log_kwargs["project_dir"] = args.output_dir
 
-    accelerator = Accelerator(
-        gradient_accumulation_steps=args.gradient_accumulation_steps,
-        **accelerator_log_kwargs,
-    )
+    if args.fp16:
+        accelerator = Accelerator(
+            mixed_precision='fp16',
+            gradient_accumulation_steps=args.gradient_accumulation_steps,
+            **accelerator_log_kwargs,
+        )
+    else:
+        accelerator = Accelerator(
+            gradient_accumulation_steps=args.gradient_accumulation_steps,
+            **accelerator_log_kwargs,
+        )
 
     # Make one log on every process with the configuration for debugging.
     logging.basicConfig(
@@ -157,6 +166,10 @@ def main():
         train_df = train_df[:args.max_train_samples]
     if args.max_eval_samples is not None:
         eval_df = eval_df[:args.max_eval_samples]
+
+    ## Reformat eval_df for calculating metric
+    solution_df = reformat_eval_df(eval_df)
+    submission_df = solution_df.copy(deep=True).drop(["sample_weight"]) # placeholder
 
     dataset = DATASETS[args.dataset_process]
     transform_train = A.Compose([
@@ -336,7 +349,7 @@ def main():
 
             if args.log_step is not None:
                 if completed_steps % args.log_step == 0:
-                    logger.info(f"epoch {epoch}, step {completed_steps}: loss: {loss.item()}, lr: {optimizer.lr}")
+                    logger.info(f"epoch {epoch}, step {completed_steps} || loss: {loss.item()}, lr: {optimizer.lr}")
 
             if isinstance(checkpointing_steps, int):
                 if completed_steps % checkpointing_steps == 0:
@@ -352,6 +365,7 @@ def main():
         losses = []
         preds = []
         refs = []
+        outputs = []
         for step, batch in enumerate(eval_dataloader):
             img, target = batch[0], batch[1]
             with torch.no_grad():
@@ -370,6 +384,7 @@ def main():
 
             preds.append(output.argmax(dim=-1))
             refs.append(target)
+            outputs.append(output.cpu())
 
         losses = torch.cat(losses)
         eval_loss = torch.mean(losses)
@@ -383,6 +398,11 @@ def main():
         total = refs.size(0)
         eval_acc = correct / total
 
+        outputs = torch.cat(outputs)
+        assert len(outputs) == len(submission_df)
+        submission_df.iloc[:, 1:] = outputs
+        eval_score = score(solution_df, submission_df, "row_id", 1.)
+
         best_eval_loss = 100
         best_eval_epoch = 0
         if best_eval_loss > eval_loss:
@@ -390,7 +410,7 @@ def main():
             best_eval_epoch = epoch
 
         logger.info(
-            f"epoch {epoch}: eval_loss: {eval_loss}, eval_acc: {eval_acc}, best_eval_loss: {best_eval_loss}, best_eval_epoch: {best_eval_epoch}"
+            f"epoch {epoch} || eval_score: {eval_score}, eval_loss: {eval_loss}, eval_acc: {eval_acc}, best_eval_loss: {best_eval_loss}, best_eval_epoch: {best_eval_epoch}"
         )
 
         if args.with_tracking:
