@@ -218,7 +218,7 @@ def main():
     )
 
     # Model
-    model = MODEL_FACTORY[args.model_name](args.model_name, args.in_channels, args.n_labels * 3)
+    model = MODEL_FACTORY[args.model_name](args.model_name, in_c=args.in_channels, n_classes=args.n_labels * 3)
 
     # Optimizer and LR scheduler
     optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd)
