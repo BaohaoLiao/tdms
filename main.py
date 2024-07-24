@@ -402,7 +402,7 @@ def main():
 
         outputs = torch.cat(outputs)
         assert len(outputs) == len(submission_df)
-        submission_df.iloc[:, 1:] = outputs
+        submission_df.iloc[:, 1:] = outputs.numpy()
         eval_score = score(solution_df[solution_df["sample_weight"]!=0], submission_df[solution_df["sample_weight"]!=0], "row_id", 1.)
 
         best_eval_loss = 100
