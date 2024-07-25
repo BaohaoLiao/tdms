@@ -9,4 +9,8 @@ MODEL_FACTORY = {
     "tf_efficientnet_b5.ns_jft_in1k": StandardModel,
     "tf_efficientnetv2_b3.in21k_ft_in1k": StandardModel,
     "resnet34": StandardModel,
+    "inception_v3.tf_in1k": StandardModel,
+    "xception": StandardModel,
+    "coat_lite_small": StandardModel,
+    "coat_small": StandardModel,
 }

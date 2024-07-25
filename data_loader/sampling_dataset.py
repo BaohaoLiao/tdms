@@ -1,4 +1,5 @@
 import os
+import cv2
 from PIL import Image
 from glob import glob
 import numpy as np
@@ -17,6 +18,8 @@ def sampling(img_dir, number=10, image_size=512):
         p = img_paths[max(0, int((j-0.5001).round()))]
         img = Image.open(p).convert('L')
         img = np.array(img)
+        if image_size != 512:
+            img = cv2.resize(img, (image_size, image_size), interpolation=cv2.INTER_CUBIC)
         imgs[..., i] = img.astype(np.uint8)
     return imgs
     
