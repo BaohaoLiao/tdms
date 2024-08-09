@@ -10,7 +10,7 @@ class StandardModel(nn.Module):
                                     features_only=features_only,
                                     in_chans=in_c,
                                     num_classes=n_classes,
-                                    global_pool='avg'
+                                    global_pool='avg',
                                     **kwargs)
     
     def forward(self, x):
