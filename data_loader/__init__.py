@@ -3,4 +3,5 @@ from data_loader.sampling_dataset_noalias import RSNASamplingDataset as RSNASamp
 
 DATASETS = {
     "sampling": RSNASamplingDataset,
+    "sampling_noalias": RSNASamplingDatasetNoAlias,
 }
