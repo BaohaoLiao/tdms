@@ -170,7 +170,7 @@ def main():
     solution_df = reformat_eval_df(eval_df)
     submission_df = solution_df.copy(deep=True).drop(columns=["sample_weight"]) # placeholder
 
-    label2id = {'Normal/Mild': 0, 'Moderate':1, 'Severe':2}
+    label2id = {'Normal/Mild': 0, 'Moderate': 1, 'Severe': 2}
     train_df = train_df.replace(label2id)
     eval_df = eval_df.replace(label2id)
 
