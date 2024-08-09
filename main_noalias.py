@@ -1,5 +1,6 @@
 import os
 import math
+import shutil
 import argparse
 import logging
 from tqdm import tqdm
@@ -450,6 +451,10 @@ def main():
     if args.with_tracking:
         accelerator.end_training()
 
+    src_file = f"{output_dir}/model.safetensors"
+    tgt_file = f"{args.output_dir}/fold{args.eval_fold}_model.safetensors"
+    shutil.copyfile(src_file, tgt_file)
+    os.rmdir(output_dir)
 
 if __name__ == "__main__":
     main()
