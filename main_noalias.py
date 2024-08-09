@@ -19,7 +19,7 @@ from transformers.utils import send_example_telemetry
 
 from data_loader import DATASETS
 from models import MODEL_FACTORY
-from metric import score, reformat_eval_df
+from metric_noalias import score, reformat_eval_df
 
 
 logger = logging.getLogger(__name__)
