@@ -116,7 +116,8 @@ def parse_args():
 
 def main():
     args = parse_args()
-    send_example_telemetry("run_mim_no_trainer", args)
+    logger.info(args)
+    send_example_telemetry("run_no_trainer", args)
     accelerator_log_kwargs = {}
     if args.with_tracking:
         accelerator_log_kwargs["log_with"] = args.report_to
