@@ -220,7 +220,11 @@ def main():
     )
 
     # Model
-    model = MODEL_FACTORY[args.model_name](args.model_name, in_c=args.in_channels, n_classes=args.n_labels * 3)
+    model = MODEL_FACTORY[args.model_name](
+        args.model_name, 
+        in_c=args.in_channels, 
+        n_classes=args.n_labels * 3,
+        pretrained=True)
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 
     # Optimizer and LR scheduler
