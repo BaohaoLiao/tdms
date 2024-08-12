@@ -17,6 +17,7 @@ from accelerate.utils import set_seed
 import transformers
 from transformers import SchedulerType, get_scheduler
 from transformers.utils import send_example_telemetry
+from transformers import get_cosine_schedule_with_warmup
 
 from data_loader import DATASETS
 from models import MODEL_FACTORY
@@ -233,6 +234,7 @@ def main():
         overrode_max_train_steps = True
     
     num_warmup_steps = int(args.warmup_ratio * args.max_train_steps)
+    """
     lr_scheduler = get_scheduler(
         name=args.lr_scheduler_type,
         optimizer=optimizer,
@@ -242,6 +244,16 @@ def main():
         else args.max_train_steps * accelerator.num_processes,
         num_cycles = 0.475,
     )
+    """
+    if args.lr_scheduler_type == "cosine":
+        lr_scheduler = get_cosine_schedule_with_warmup(
+            optimizer,
+            num_warmup_steps=num_warmup_steps * accelerator.num_processes,
+            num_training_steps=args.max_train_steps
+                if overrode_max_train_steps
+                else args.max_train_steps * accelerator.num_processes,
+            num_cycles = 0.475,
+        )
 
     # Prepare everything with our `accelerator`.
     model, optimizer, train_dataloader, eval_dataloader, lr_scheduler = accelerator.prepare(
