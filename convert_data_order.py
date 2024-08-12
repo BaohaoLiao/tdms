@@ -53,7 +53,9 @@ def main(data_dir, save_dir, nfold=5, seed=42, convert_data=True):
                     continue
                 else:
                     for i, row in pdf_.iterrows():
-                        allimgs = [f'{data_dir}/train_images/{file_path}' for file_path in ast.literal_eval(row["file_paths"])]
+                        file_paths = ast.literal_eval(row["file_paths"])
+                        assert len(file_paths) == row['dicom_count']
+                        allimgs = [f'{data_dir}/train_images/{file_path}' for file_path in file_paths]
 
                 for j, impath in enumerate(allimgs):
                     dst = f'{img_save_dir}/{j:03d}.png'
