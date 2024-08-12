@@ -200,8 +200,20 @@ def main():
         A.Normalize(mean=0.5, std=0.5)
     ])
 
-    train_ds = dataset(train_df, args.img_dir, transform=transform_train)
-    eval_ds = dataset(eval_df, args.img_dir, transform=transform_eval)
+    train_ds = dataset(
+        train_df, 
+        args.img_dir, 
+        transform=transform_train,
+        image_size=args.img_size, 
+        in_channels=args.in_channels
+    )
+    eval_ds = dataset(
+        eval_df, 
+        args.img_dir, 
+        transform=transform_eval,
+        image_size=args.img_size, 
+        in_channels=args.in_channels
+    )
     train_dataloader = DataLoader(
         train_ds,
         batch_size=args.per_device_train_batch_size,
