@@ -242,7 +242,6 @@ def main():
         num_training_steps=args.max_train_steps
         if overrode_max_train_steps
         else args.max_train_steps * accelerator.num_processes,
-        num_cycles = 0.475,
     )
     """
     if args.lr_scheduler_type == "cosine":
