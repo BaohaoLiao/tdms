@@ -1,9 +1,8 @@
+import os
+import ast
+import cv2
 import fire
 import pydicom
-import cv2
-import re
-import glob, os
-from itertools import product
 from tqdm import tqdm
 import pandas as pd
 from sklearn.model_selection import KFold
@@ -54,7 +53,7 @@ def main(data_dir, save_dir, nfold=5, seed=42, convert_data=True):
                     continue
                 else:
                     for i, row in pdf_.iterrows():
-                        allimgs = [f'{data_dir}/train_images/{file_path}' for file_path in row["file_paths"]]
+                        allimgs = [f'{data_dir}/train_images/{file_path}' for file_path in ast.literal_eval(row["file_paths"])]
 
                 for j, impath in enumerate(allimgs):
                     dst = f'{img_save_dir}/{j:03d}.png'
