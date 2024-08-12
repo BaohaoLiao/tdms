@@ -13,4 +13,5 @@ MODEL_FACTORY = {
     "xception": StandardModel,
     "coat_lite_small": StandardModel,
     "coat_small": StandardModel,
+    "edgenext_base.in21k_ft_in1k": StandardModel,
 }
