@@ -1,4 +1,5 @@
 import os
+import ast
 import math
 import shutil
 import argparse
@@ -44,6 +45,7 @@ def parse_args():
     parser.add_argument("--model_name", type=str, default=None)
     parser.add_argument("--in_channels", type=int, default=30)
     parser.add_argument("--n_labels", type=int, default=25)
+    parser.add_argument("--label_weights", type=str, default="[1, 2, 4]")
     # train
     parser.add_argument("--num_train_epochs", type=int, default=25)
     parser.add_argument(
@@ -330,7 +332,7 @@ def main():
     # update the progress_bar if load from checkpoint
     progress_bar.update(completed_steps)
 
-    weights = torch.tensor([1.0, 2.0, 4.0])
+    weights = torch.tensor(ast.literal_eval(args.label_weights))
     criterion = nn.CrossEntropyLoss(weight=weights.cuda())
     best_eval_metric_loss = 100
     best_eval_metric_epoch = 0
