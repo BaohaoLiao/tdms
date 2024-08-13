@@ -332,7 +332,7 @@ def main():
     # update the progress_bar if load from checkpoint
     progress_bar.update(completed_steps)
 
-    weights = torch.tensor(ast.literal_eval(args.label_weights))
+    weights = torch.tensor(ast.literal_eval(args.label_weights), dtype=torch.float32)
     criterion = nn.CrossEntropyLoss(weight=weights.cuda())
     best_eval_metric_loss = 100
     best_eval_metric_epoch = 0
