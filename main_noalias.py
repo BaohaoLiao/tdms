@@ -5,7 +5,6 @@ import argparse
 import logging
 from tqdm import tqdm
 import pandas as pd
-import albumentations as A
 
 import torch
 import torch.nn as nn
@@ -22,6 +21,7 @@ from transformers import get_cosine_schedule_with_warmup
 from data_loader import DATASETS
 from models import MODEL_FACTORY
 from metric_noalias import score, reformat_eval_df
+from augmentations import various_augs
 
 
 logger = logging.getLogger(__name__)
@@ -38,6 +38,7 @@ def parse_args():
     parser.add_argument("--max_eval_samples", type=int, default=None)
     parser.add_argument("--dataset_process", type=str, default=None)
     parser.add_argument("--aug_prob", type=float, default=0.75)
+    parser.add_argument("--aug_type", type=int, default=0)
     # model
     parser.add_argument("--model_name", type=str, default=None)
     parser.add_argument("--in_channels", type=int, default=30)
@@ -178,28 +179,11 @@ def main():
     eval_df = eval_df.replace(label2id)
 
     dataset = DATASETS[args.dataset_process]
-    transform_train = A.Compose([
-        A.RandomBrightnessContrast(brightness_limit=(-0.2, 0.2), contrast_limit=(-0.2, 0.2), p=args.aug_prob),
-        A.OneOf([
-            A.MotionBlur(blur_limit=5),
-            A.MedianBlur(blur_limit=5),
-            A.GaussianBlur(blur_limit=5),
-            A.GaussNoise(var_limit=(5.0, 30.0)),
-        ], p=args.aug_prob),
-        A.OneOf([
-            A.OpticalDistortion(distort_limit=1.0),
-            A.GridDistortion(num_steps=5, distort_limit=1.),
-            A.ElasticTransform(alpha=3),
-        ], p=args.aug_prob),
-        A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=15, border_mode=0, p=args.aug_prob),
-        A.Resize(args.img_size, args.img_size),
-        A.CoarseDropout(max_holes=16, max_height=64, max_width=64, min_holes=1, min_height=8, min_width=8, p=args.aug_prob),    
-        A.Normalize(mean=0.5, std=0.5)
-    ])
-    transform_eval = A.Compose([
-        A.Resize(args.img_size, args.img_size),
-        A.Normalize(mean=0.5, std=0.5)
-    ])
+    transform_train, transform_eval = various_augs(
+        args.aug_type, 
+        aug_prob=args.aug_prob, 
+        img_size=args.img_size
+    )
 
     train_ds = dataset(
         train_df, 
