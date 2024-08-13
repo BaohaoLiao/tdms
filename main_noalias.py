@@ -114,6 +114,7 @@ def parse_args():
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--log_step", type=int, default=None)
     parser.add_argument("--fp16", action="store_true")
+    parser.add_argument("--best_metric", type="str", default="metric_loss")
     args = parser.parse_args()
     return args
 
@@ -438,9 +439,14 @@ def main():
                 "row_id", 
                 1.
             )
+        
+        if args.best_metric == "metric_loss":
+            current_loss = eval_metric_loss
+        elif args.best_metric == "eval_loss":
+            current_loss = eval_loss
 
-        if best_eval_metric_loss > eval_metric_loss:
-            best_eval_metric_loss = eval_metric_loss
+        if best_eval_metric_loss > current_loss:
+            best_eval_metric_loss = current_loss
             best_eval_metric_epoch = epoch
 
             output_dir = f"fold{args.eval_fold}"
@@ -451,7 +457,7 @@ def main():
 
         logger.info(
             f" epoch {epoch} || metric_loss: {eval_metric_loss:.4f}, eval_loss: {eval_loss:.4f}, "
-            f"eval_acc: {eval_acc:.4f}, best_metric_loss: {best_eval_metric_loss:.4f}, best_metric_epoch: {best_eval_metric_epoch}"
+            f"eval_acc: {eval_acc:.4f}, best_loss: {best_eval_metric_loss:.4f}, best_epoch: {best_eval_metric_epoch}"
         )
 
         if args.with_tracking:
