@@ -39,6 +39,7 @@ def parse_args():
     parser.add_argument("--dataset_process", type=str, default=None)
     parser.add_argument("--aug_prob", type=float, default=0.75)
     parser.add_argument("--aug_type", type=int, default=0)
+    parser.add_argument("--flip_prob", type=float, default=0)
     # model
     parser.add_argument("--model_name", type=str, default=None)
     parser.add_argument("--in_channels", type=int, default=30)
@@ -184,20 +185,22 @@ def main():
         aug_prob=args.aug_prob, 
         img_size=args.img_size
     )
-
     train_ds = dataset(
         train_df, 
         args.img_dir, 
         transform=transform_train,
         image_size=args.img_size, 
-        in_channels=args.in_channels
+        in_channels=args.in_channels,
+        phase="train",
+        flip_prob=args.flip_prob
     )
     eval_ds = dataset(
         eval_df, 
         args.img_dir, 
         transform=transform_eval,
         image_size=args.img_size, 
-        in_channels=args.in_channels
+        in_channels=args.in_channels,
+        phase="test"
     )
     train_dataloader = DataLoader(
         train_ds,

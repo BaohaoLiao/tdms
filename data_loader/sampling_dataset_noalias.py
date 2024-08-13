@@ -1,5 +1,7 @@
 import os
+import copy
 import cv2
+import random
 from PIL import Image
 from glob import glob
 import numpy as np
@@ -24,12 +26,23 @@ def sampling(img_dir, number=10, image_size=512):
     
 
 class RSNASamplingDataset(Dataset):
-    def __init__(self, df, img_dir, transform=None, image_size=512, in_channels=30):
+    def __init__(
+            self, 
+            df, 
+            img_dir, 
+            transform=None, 
+            image_size=512, 
+            in_channels=30, 
+            phase="train", 
+            flip_prob=0,
+        ):
         self.df = df
         self.transform = transform
         self.image_size = image_size
         self.in_channels = in_channels
         self.img_dir = img_dir
+        self.phase = phase
+        self.flip_prob = flip_prob
     
     def __len__(self):
         return len(self.df)
@@ -39,13 +52,20 @@ class RSNASamplingDataset(Dataset):
         row = self.df.iloc[idx]
         st_id = int(row['study_id'])
         label = row[1:-1].values.astype(np.int64)
+        new_label = copy.deepcopy(label)
 
         img_dir = os.path.join(self.img_dir, str(st_id))
         # Sagittal T1
         try:
-            x[..., :self.in_channels//3] = sampling(
+            st1_vol  = sampling(
                 f"{img_dir}/Sagittal_T1", number=self.in_channels//3, image_size=self.image_size
             )
+            if self.phase == "train" and self.flip_prob > 0:
+                if random.random() < self.flip_prob:
+                    st1_vol = st1_vol[:, :, ::-1]
+                    new_label[5:10] == label[10:15]
+                    new_label[10:15] == label[5:10]
+            x[..., :self.in_channels//3] = st1_vol  
         except:
             pass
 
@@ -59,9 +79,15 @@ class RSNASamplingDataset(Dataset):
 
         # Axial T2
         try:
-            x[..., 2*self.in_channels//3:] = sampling(
+            at2_vol = sampling(
                 f"{img_dir}/Axial_T2", number=self.in_channels//3, image_size=self.image_size
             )
+            if self.phase == "train" and self.flip_prob > 0:
+                if random.random() < self.flip_prob:
+                    at2_vol = at2_vol[:, ::-1, :]
+                    new_label[15:20] == label[20:25]
+                    new_label[20:25] == label[15:20]
+            x[..., 2*self.in_channels//3:] = at2_vol
         except:
             pass
             
@@ -72,4 +98,4 @@ class RSNASamplingDataset(Dataset):
         #x = x / 255
         x = x.transpose(2, 0, 1)
                 
-        return x, label
+        return x, new_label
