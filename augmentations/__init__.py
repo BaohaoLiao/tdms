@@ -58,8 +58,10 @@ def various_augs(aug_type: int, aug_prob=0.75, img_size=512):
                     always_apply=True,
                 )], p=0.5),
             A.Resize(img_size, img_size),
+            A.Normalize(mean=0.5, std=0.5),
         ])
         transform_eval = A.Compose([
             A.Resize(img_size, img_size),
+            A.Normalize(mean=0.5, std=0.5),
         ])
     return transform_train, transform_eval
