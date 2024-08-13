@@ -68,6 +68,8 @@ class RSNASamplingDataset(Dataset):
         assert np.sum(x)>0
         if self.transform is not None:
             x = self.transform(image=x)['image']
+        x = x.astype(np.float32)
+        x = x / 255
         x = x.transpose(2, 0, 1)
                 
         return x, label
