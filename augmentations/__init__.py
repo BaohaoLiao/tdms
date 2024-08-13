@@ -21,11 +21,11 @@ def various_augs(aug_type: int, aug_prob=0.75, img_size=512):
             A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.1, rotate_limit=15, border_mode=0, p=aug_prob),
             A.Resize(img_size, img_size),
             A.CoarseDropout(max_holes=16, max_height=64, max_width=64, min_holes=1, min_height=8, min_width=8, p=aug_prob),    
-            #A.Normalize(mean=0.5, std=0.5)
+            A.Normalize(mean=0.5, std=0.5)
         ])
         transform_eval = A.Compose([
             A.Resize(img_size, img_size),
-            #A.Normalize(mean=0.5, std=0.5)
+            A.Normalize(mean=0.5, std=0.5)
         ])
     elif aug_type == 1:
         transform_train = A.ReplayCompose([
