@@ -1,5 +1,6 @@
 import cv2
 import albumentations as A
+from albumentations.pytorch import ToTensorV2
 
 
 def various_augs(aug_type: int, aug_prob=0.75, img_size=512):
@@ -31,11 +32,11 @@ def various_augs(aug_type: int, aug_prob=0.75, img_size=512):
             A.Resize(img_size, img_size),
             A.Perspective(p=aug_prob),
             A.Rotate(p=aug_prob, limit=(-25, 25)),
-            A.pytorch.ToTensorV2(),
+            ToTensorV2(),
         ])
         transform_eval = A.Compose([
             A.Resize(img_size, img_size),
-            A.pytorch.ToTensorV2(),
+            ToTensorV2(),
         ])
     elif aug_type == 2:
         transform_train = A.Compose([
