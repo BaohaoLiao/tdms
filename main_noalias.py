@@ -114,7 +114,7 @@ def parse_args():
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--log_step", type=int, default=None)
     parser.add_argument("--fp16", action="store_true")
-    parser.add_argument("--best_metric", type="str", default="metric_loss")
+    parser.add_argument("--best_metric", type=str, default="metric_loss")
     args = parser.parse_args()
     return args
 
