@@ -32,11 +32,11 @@ def various_augs(aug_type: int, aug_prob=0.75, img_size=512):
             A.Resize(img_size, img_size),
             A.Perspective(p=aug_prob),
             A.Rotate(p=aug_prob, limit=(-25, 25)),
-            ToTensorV2(),
+            A.Normalize(mean=0.5, std=0.5),
         ])
         transform_eval = A.Compose([
             A.Resize(img_size, img_size),
-            ToTensorV2(),
+            A.Normalize(mean=0.5, std=0.5),
         ])
     elif aug_type == 2:
         transform_train = A.Compose([
