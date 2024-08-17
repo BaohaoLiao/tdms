@@ -16,4 +16,5 @@ MODEL_FACTORY = {
     "coat_small": StandardModel,
     "edgenext_base.in21k_ft_in1k": StandardModel,
     "tf_efficientnetv2_s_in21ft1k_2.5d": EfficientNet3D,
+    "tf_efficientnetv2_b3.in21k_ft_in1k_2.5d": EfficientNet3D,
 }
