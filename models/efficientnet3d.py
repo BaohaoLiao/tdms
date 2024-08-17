@@ -58,6 +58,6 @@ class EfficientNet3D(nn.Module):
         x = self.avgpool(x)
         x = x.view(bs, n_slice_per_c, -1)
         x, _ = self.lstm(x)
-        x = x.mean(dim=1)[:, 0, :]
+        x = x.mean(dim=1)
         x = self.head(x)
         return x
