@@ -44,7 +44,7 @@ class EfficientNet3D(nn.Module):
         
         # init
         st = true_encoder.state_dict()
-        self.encoder.model.load_state_dict(st, strict=False)      
+        self.encoder.load_state_dict(st, strict=False)      
     
     def forward(self, x):
         bs, n_slice_per_c, img_size, _ = x.shape
