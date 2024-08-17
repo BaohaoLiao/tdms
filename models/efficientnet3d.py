@@ -39,7 +39,7 @@ class EfficientNet3D(nn.Module):
         )
         self.head = nn.Sequential(
             nn.Dropout(0.1),
-            nn.Linear(lstm_embed, n_classes),
+            nn.Linear(3*lstm_embed, n_classes),
         )
         
         # init
@@ -56,8 +56,13 @@ class EfficientNet3D(nn.Module):
         x = self.conv_head(x)
         x = self.bn2(x)
         x = self.avgpool(x)
-        x = x.view(bs, n_slice_per_c, -1)
+
+        x = x.view(bs*3, n_slice_per_c//3, -1)
+        
         x, _ = self.lstm(x)
         x = x.mean(dim=1)
+
+        x = x.view(bs, -1)
+
         x = self.head(x)
         return x
