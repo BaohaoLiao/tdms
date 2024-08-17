@@ -1,4 +1,5 @@
 from models.standard_model import StandardModel
+from models.efficientnet3d import EfficientNet3D
 
 MODEL_FACTORY = {
     "densenet169": StandardModel,
@@ -14,4 +15,5 @@ MODEL_FACTORY = {
     "coat_lite_small": StandardModel,
     "coat_small": StandardModel,
     "edgenext_base.in21k_ft_in1k": StandardModel,
+    "tf_efficientnetv2_s_in21ft1k_2.5d": EfficientNet3D,
 }
