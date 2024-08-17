@@ -4,6 +4,7 @@ import timm
 class EfficientNet3D(nn.Module):
     def __init__(self, model_name, in_c=30, n_classes=75, pretrained=False, features_only=False, **kwargs):
         super().__init__()
+        model_name = "_".join(model_name.split("_")[:-1])
         drop = 0.
         true_encoder = timm.create_model(
             model_name, 
