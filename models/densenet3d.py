@@ -17,10 +17,10 @@ class DensenetNet3D(nn.Module):
         self.avgpool = nn.AdaptiveAvgPool2d(1)
 
         num_features = self.encoder.num_features
-        #self.proj = nn.Linear(num_features, num_features//3, bias=True)
+        self.proj = nn.Linear(num_features, num_features//3, bias=True)
         self.head = nn.Sequential(
             nn.Dropout(0.1),
-            nn.Linear(num_features*3, n_classes),
+            nn.Linear(num_features//3*3, n_classes),
         )
 
     def forward(self, x):
@@ -31,7 +31,7 @@ class DensenetNet3D(nn.Module):
         x = self.encoder.forward_features(x)
         x = self.avgpool(x)
         x = x.view(bs, 3, -1)
-        #x = self.proj(x)
+        x = self.proj(x)
         x = x.view(bs, -1)
         x = self.head(x)
         return x
